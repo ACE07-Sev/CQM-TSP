@@ -140,16 +140,17 @@ for j in range(n):
     X_.clear()
 
 # subtour elimination constraint
-for s in range(S):
-    for i in range(len(subtours[s])):
-        for j in range(len(subtours[s])):
+for s in range(S):  # s = {1,2}, length of s = 1, so 1 iterations of below
+    for i in range(len(subtours[s])):   # len of subtour = 2, so 2 iterations
+        for j in range(len(subtours[s])):   # len of subtour = 2 so 2 iterations
+            # possible X_ : X1,1 X1,2 X2,1 X2,2
             if i == j:
-                X_.append(0)
+                continue   # X1,1 and X2,2 are not accepted
             else:
                 X_.append(Binary('X_' + str(i + 1) + "_" + str(j + 1)))
-        constraint_3 = quicksum(X_[j] for j in range(len(subtours[s])))
-        cqm.add_constraint(constraint_3 <= len(subtours[s]) - 1, label="Constraint 3-" + str(i + 1) + str(s + 1))
-        X_.clear()
+    constraint_3 += quicksum(X_[j] for j in range(len(subtours[s])))
+    cqm.add_constraint(constraint_3 <= len(subtours[s]) - 1, label="Constraint 3-" + str(s + 1))
+    X_.clear()
 
 # Running the sampler to get the sample set
 cqm_sampler = LeapHybridCQMSampler()
