@@ -82,6 +82,7 @@ subtours = find_all_subsets(global_set)
 print(subtours)
 # number of subsets
 S = len(subtours)
+print(S)
 # # Distance Matrix
 # C_in = []
 # temp_set = []
@@ -147,8 +148,8 @@ for s in range(S):  # s = {1,2}, length of s = 1, so 1 iterations of below
             if i == j:
                 continue   # X1,1 and X2,2 are not accepted
             else:
-                X_.append(Binary('X_' + str(i + 1) + "_" + str(j + 1)))
-    constraint_3 += quicksum(X_[j] for j in range(len(subtours[s])))
+                X_.append(Binary('X_' + str(subtours[s][i]) + "_" + str(subtours[s][j])))
+    constraint_3 = quicksum(X_[j] for j in range(len(subtours[s])))
     cqm.add_constraint(constraint_3 <= len(subtours[s]) - 1, label="Constraint 3-" + str(s + 1))
     X_.clear()
 
