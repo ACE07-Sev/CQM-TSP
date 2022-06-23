@@ -12,6 +12,18 @@ import itertools
 from matplotlib import pyplot as plt
 
 
+def containsNumber(value):
+    num_list = []
+    for character in value:
+        if character.isdigit():
+            num_list.append(int(character)-1)
+    return num_list
+
+
+def connectLine(point1, point2):
+    plt.plot(point1, point2, linestyle='solid',color='blue')
+
+
 # Function to generate the subsets of a list given size
 def findsubsets(s, n):
     return list(itertools.combinations(s, n))
@@ -83,20 +95,14 @@ print(subtours)
 # number of subsets
 S = len(subtours)
 print(S)
+coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5]])
+
+x_vals = coordinates[:, 0]
+y_vals = coordinates[:, 1]
+
 # # Distance Matrix
 # C_in = []
 # temp_set = []
-# coordinates = []
-# # Inputting the coordinates
-# for i in range(n):
-#     print("Input x coordinate")
-#     point_x = float(input())
-#     print("Input y coordinate")
-#     point_y = float(input())
-#     coordinates.append([point_x, point_y])
-#     plt.scatter(point_x, point_y)
-# # Dot plot
-# plt.show()
 # # Generating the distance matrix
 # for i in range(n):
 #     for j in range(n):
@@ -165,10 +171,6 @@ feasible_sampleset = sampleset.filter(lambda d: d.is_feasible)
 
 sample = feasible_sampleset.first.sample
 Formatter(width=1000).fprint(feasible_sampleset)
-# print('')
-# print('')
-# Formatter(width=1000).fprint(sampleset)
-# print(feasible_sampleset)
 
 for constraint in cqm.iter_constraint_data(sample):
     print(constraint.label, constraint.violation)
@@ -178,3 +180,24 @@ for c, v in cqm.constraints.items():
     print('rhs : ' + str(v.rhs))
     print('sense  : ' + str(v.sense))
     print("---")
+
+sample_keys = sample.keys()
+sample_solutions = []
+for key in sample_keys:
+    if sample.get(key) == 1:
+        sample_solutions.append(key)
+print(sample_solutions)
+
+sample_coordinate_sequence = []
+for i in range(len(sample_solutions)):
+    res = containsNumber(sample_solutions[i])
+    sample_coordinate_sequence.append(res)
+
+plt.scatter(x_vals, y_vals)
+
+for i in sample_coordinate_sequence:
+  start = coordinates[i[0]]
+  end = coordinates[i[1]]
+  plt.plot([start[0], end[0]], [start[1], end[1]])
+  
+plt.show()
