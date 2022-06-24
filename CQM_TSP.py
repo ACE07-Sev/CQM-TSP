@@ -16,12 +16,12 @@ def containsNumber(value):
     num_list = []
     for character in value:
         if character.isdigit():
-            num_list.append(int(character)-1)
+            num_list.append(int(character) - 1)
     return num_list
 
 
 def connectLine(point1, point2):
-    plt.plot(point1, point2, linestyle='solid',color='blue')
+    plt.plot(point1, point2, linestyle='solid', color='blue')
 
 
 # Function to generate the subsets of a list given size
@@ -33,7 +33,7 @@ def findsubsets(s, n):
 def find_all_subsets(s):
     subtours = []
     temp_list = []
-    for i in range(2, len(s)-1):
+    for i in range(2, len(s) - 1):
         temp_list = findsubsets(s, i)
         for j in range(len(temp_list)):
             subtours.append(temp_list[j])
@@ -65,19 +65,6 @@ def distance_two_coordinates(point_A, point_B):
     return round(geopy.distance.great_circle(point_A, point_B).km)
 
 
-# dataset for distance matrix
-C_ = [[0, 2, 2, 4, 2],
-      [2, 0, 2, 2, 3],
-      [2, 2, 0, 3, 2],
-      [4, 2, 3, 0, 3],
-      [2, 2, 2, 3, 0]]
-
-C_1 = [[0.0, 2.23606797749979, 2.23606797749979, 3.1622776601683795, 4.0],
-       [2.23606797749979, 0.0, 1.4142135623730951, 1.0, 2.23606797749979],
-       [2.23606797749979, 1.4142135623730951, 0.0, 2.23606797749979, 3.605551275463989],
-       [3.1622776601683795, 1.0, 2.23606797749979, 0.0, 1.4142135623730951],
-       [4.0, 2.23606797749979, 3.605551275463989, 1.4142135623730951, 0.0]]
-
 # Initializing the CQM
 cqm = ConstrainedQuadraticModel()
 # Initializing the objective
@@ -95,22 +82,24 @@ print(subtours)
 # number of subsets
 S = len(subtours)
 print(S)
-coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5]])
+# coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5]])
+
+coordinates = np.array([[34.968118, 136.617135], [35.738168, 139.760987], [36.338447, 139.235011], [35.655159, 139.871503],[35.768902, 139.871503]])
 
 x_vals = coordinates[:, 0]
 y_vals = coordinates[:, 1]
 
-# # Distance Matrix
-# C_in = []
-# temp_set = []
-# # Generating the distance matrix
-# for i in range(n):
-#     for j in range(n):
-#         temp_set.append(distance_between_points(coordinates[i], coordinates[j]))
-#     C_in.append(temp_set)
-#     temp_set = []
-# # Distnace Matrix
-# print(C_in)
+# Distance Matrix
+C_in = []
+temp_set = []
+# Generating the distance matrix
+for i in range(n):
+    for j in range(n):
+        temp_set.append(distance_between_points(coordinates[i], coordinates[j]))
+    C_in.append(temp_set)
+    temp_set = []
+# Distnace Matrix
+print(C_in)
 
 # Initializing the decision var
 X_ = []
@@ -122,7 +111,7 @@ for i in range(n):
             X_.append(0)
         else:
             X_.append(Binary('X_' + str(i + 1) + "_" + str(j + 1)))
-    objective += quicksum(C_1[j][i] * X_[j] for j in range(n))
+    objective += quicksum(C_in[j][i] * X_[j] for j in range(n))
     cqm.set_objective(objective)
     X_.clear()
 
@@ -149,11 +138,11 @@ for j in range(n):
 
 # subtour elimination constraint
 for s in range(S):  # s = {1,2}, length of s = 1, so 1 iterations of below
-    for i in range(len(subtours[s])):   # len of subtour = 2, so 2 iterations
-        for j in range(len(subtours[s])):   # len of subtour = 2 so 2 iterations
+    for i in range(len(subtours[s])):  # len of subtour = 2, so 2 iterations
+        for j in range(len(subtours[s])):  # len of subtour = 2 so 2 iterations
             # possible X_ : X1,1 X1,2 X2,1 X2,2
             if i == j:
-                continue   # X1,1 and X2,2 are not accepted
+                continue  # X1,1 and X2,2 are not accepted
             else:
                 X_.append(Binary('X_' + str(subtours[s][i]) + "_" + str(subtours[s][j])))
     constraint_3 = quicksum(X_[j] for j in range(len(subtours[s])))
@@ -197,8 +186,8 @@ for i in range(len(sample_solutions)):
 plt.scatter(x_vals, y_vals)
 
 for i in sample_coordinate_sequence:
-  start = coordinates[i[0]]
-  end = coordinates[i[1]]
-  plt.plot([start[0], end[0]], [start[1], end[1]])
+    start = coordinates[i[0]]
+    end = coordinates[i[1]]
+    plt.plot([start[0], end[0]], [start[1], end[1]])
 
 plt.show()
