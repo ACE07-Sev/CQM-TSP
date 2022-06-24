@@ -123,6 +123,7 @@ for i in range(n):
         else:
             X_.append(Binary('X_' + str(i + 1) + "_" + str(j + 1)))
     objective += quicksum(C_1[j][i] * X_[j] for j in range(n))
+    cqm.set_objective(objective)
     X_.clear()
 
 # Assignment Constraints (Only one entry and exit per node)
@@ -199,5 +200,5 @@ for i in sample_coordinate_sequence:
   start = coordinates[i[0]]
   end = coordinates[i[1]]
   plt.plot([start[0], end[0]], [start[1], end[1]])
-  
+
 plt.show()
