@@ -1,7 +1,5 @@
-import math
 import os
 
-import geopy
 from dimod.serialization.format import Formatter
 
 os.chdir('..')
@@ -20,10 +18,6 @@ def containsNumber(value):
     return num_list
 
 
-def connectLine(point1, point2):
-    plt.plot(point1, point2, linestyle='solid', color='blue')
-
-
 # Function to generate the subsets of a list given size
 def findsubsets(s, n):
     return list(itertools.combinations(s, n))
@@ -33,7 +27,7 @@ def findsubsets(s, n):
 def find_all_subsets(s):
     subtours = []
     temp_list = []
-    for i in range(2, len(s) - 1):
+    for i in range(2, len(s)):
         temp_list = findsubsets(s, i)
         for j in range(len(temp_list)):
             subtours.append(temp_list[j])
@@ -45,26 +39,6 @@ def distance_between_points(point_A, point_B):
     return np.sqrt((point_A[0] - point_B[0]) ** 2 + (point_A[1] - point_B[1]) ** 2)
 
 
-# Function for calculating the distance using coordinates
-def distance_two_coordinates(point_A, point_B):
-    lat1 = math.pi * ((point_A[0] // 1) + 5.0 * (point_A[0] % 1) / 3.0) / 180.0
-    lon1 = math.pi * ((point_A[1] // 1) + 5.0 * (point_A[1] % 1) / 3.0) / 180.0
-    lat2 = math.pi * ((point_B[0] // 1) + 5.0 * (point_B[0] % 1) / 3.0) / 180.0
-    lon2 = math.pi * ((point_B[1] // 1) + 5.0 * (point_B[1] % 1) / 3.0) / 180.0
-
-    q1 = math.cos(lon1 - lon2)
-    q2 = math.cos(lat1 - lat2)
-    q3 = math.cos(lat1 + lat2)
-    radius = 6378.388
-
-    distance = radius * math.acos(1 / 2 * ((1 + q1) * q2 - (1 - q1) * q3)) + 1
-
-    if distance == 1.0:
-        return 0
-
-    return round(geopy.distance.great_circle(point_A, point_B).km)
-
-
 # Initializing the CQM
 cqm = ConstrainedQuadraticModel()
 # Initializing the objective
@@ -73,33 +47,33 @@ objective = 0
 constraint_1 = 0
 constraint_2 = 0
 constraint_3 = 0
+# List of coordinates
+coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5], [3, 6]])
 # number of nodes
-n = 5
-global_set = [1, 2, 3, 4, 5]
+n = len(coordinates)
+global_set = [i for i in range(n)]
 # list of subtours
 subtours = find_all_subsets(global_set)
 print(subtours)
 # number of subsets
 S = len(subtours)
 print(S)
-# coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5]])
 
-coordinates = np.array([[34.968118, 136.617135], [35.738168, 139.760987], [36.338447, 139.235011], [35.655159, 139.871503],[35.768902, 139.871503]])
+# coordinates = np.array([[34.968118, 136.617135], [35.738168, 139.760987], [36.338447, 139.235011], [35.655159, 139.871503],[35.768902, 139.871503]])
 
 x_vals = coordinates[:, 0]
 y_vals = coordinates[:, 1]
 
 # Distance Matrix
-C_in = []
+Distance_matrix = []
 temp_set = []
 # Generating the distance matrix
 for i in range(n):
     for j in range(n):
         temp_set.append(distance_between_points(coordinates[i], coordinates[j]))
-    C_in.append(temp_set)
+    Distance_matrix.append(temp_set)
     temp_set = []
-# Distnace Matrix
-print(C_in)
+print(Distance_matrix)
 
 # Initializing the decision var
 X_ = []
@@ -111,7 +85,7 @@ for i in range(n):
             X_.append(0)
         else:
             X_.append(Binary('X_' + str(i + 1) + "_" + str(j + 1)))
-    objective += quicksum(C_in[j][i] * X_[j] for j in range(n))
+    objective += quicksum(Distance_matrix[j][i] * X_[j] for j in range(n))
     cqm.set_objective(objective)
     X_.clear()
 
@@ -138,14 +112,14 @@ for j in range(n):
 
 # subtour elimination constraint
 for s in range(S):  # s = {1,2}, length of s = 1, so 1 iterations of below
-    for i in range(len(subtours[s])):  # len of subtour = 2, so 2 iterations
-        for j in range(len(subtours[s])):  # len of subtour = 2 so 2 iterations
+    for i in (subtours[s]):  # len of subtour = 2, so 2 iterations
+        for j in (subtours[s]):  # len of subtour = 2 so 2 iterations
             # possible X_ : X1,1 X1,2 X2,1 X2,2
             if i == j:
                 continue  # X1,1 and X2,2 are not accepted
             else:
-                X_.append(Binary('X_' + str(subtours[s][i]) + "_" + str(subtours[s][j])))
-    constraint_3 = quicksum(X_[j] for j in range(len(subtours[s])))
+                X_.append(Binary('X_' + str(i) + "_" + str(j)))
+    constraint_3 = quicksum(X_[j] for j in range(len(X_)))
     cqm.add_constraint(constraint_3 <= len(subtours[s]) - 1, label="Constraint 3-" + str(s + 1))
     X_.clear()
 
