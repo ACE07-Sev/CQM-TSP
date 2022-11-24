@@ -48,7 +48,9 @@ constraint_1 = 0
 constraint_2 = 0
 constraint_3 = 0
 # List of coordinates
-coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5], [3, 6]])
+# coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5], [3, 6], [4, 3]])
+
+coordinates = np.array([[1, 1], [2, 3], [3, 2], [2, 4], [1, 5], [3, 6], [1, 3], [2, 6], [2, 5], [3, 3], [1, 2], [4, 3], [2, 0.5], [3, 5], [2, 2]])
 # number of nodes
 n = len(coordinates)
 global_set = [i for i in range(n)]
@@ -58,8 +60,6 @@ print(subtours)
 # number of subsets
 S = len(subtours)
 print(S)
-
-# coordinates = np.array([[34.968118, 136.617135], [35.738168, 139.760987], [36.338447, 139.235011], [35.655159, 139.871503],[35.768902, 139.871503]])
 
 x_vals = coordinates[:, 0]
 y_vals = coordinates[:, 1]
@@ -118,14 +118,14 @@ for s in range(S):  # s = {1,2}, length of s = 1, so 1 iterations of below
             if i == j:
                 continue  # X1,1 and X2,2 are not accepted
             else:
-                X_.append(Binary('X_' + str(i) + "_" + str(j)))
+                X_.append(Binary('X_' + str(i + 1) + "_" + str(j + 1)))
     constraint_3 = quicksum(X_[j] for j in range(len(X_)))
     cqm.add_constraint(constraint_3 <= len(subtours[s]) - 1, label="Constraint 3-" + str(s + 1))
     X_.clear()
 
 # Running the sampler to get the sample set
 cqm_sampler = LeapHybridCQMSampler()
-sampleset = cqm_sampler.sample_cqm(cqm, label='CQMAmirali', time_limit=5)
+sampleset = cqm_sampler.sample_cqm(cqm, label='CQMAmirali', time_limit=15)
 
 # Printing the sample set
 for c, cval in cqm.constraints.items():
