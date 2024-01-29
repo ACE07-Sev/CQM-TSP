@@ -2,8 +2,7 @@
 CQM model for Traveling Salesman Problem using Quantum Annealing
 
 # Model Usage Instructions
-The CQM model takes an np.array list of coordinates and outputs the globally optimal path in O(n) time (due to running on D-Wave HybridCQMSampler QPU), as compared to O(n^2 * 2^n) complexity of its dynamic programming 
-counterpart which is the Held-Karp modelling. 
+The CQM model takes an np.array list of coordinates and outputs the globally optimal path in $O(n)$ time (due to running on D-Wave HybridCQMSampler QPU), as compared to $O(n^2 * 2^n)$ complexity of its dynamic programming counterpart which is the Held-Karp modelling. 
 
 The model takes the list of coordinates, and generates a distance matrix based on Euclidean distance. The model then uses this generated distance matrix in its objective
 to find the cost for each taken path. 
