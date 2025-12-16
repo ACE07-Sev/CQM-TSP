@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ['CQM', 'QTSP', 'QTSP_Improved', 'QESP']
+__all__ = ["CQM", "QTSP", "QTSP_Improved", "QESP"]
 
 from cqm.solver.cqm import CQM
 from cqm.solver.tsp import QTSP

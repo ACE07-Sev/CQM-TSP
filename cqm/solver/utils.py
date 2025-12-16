@@ -12,6 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["Graph"]
+from __future__ import annotations
 
-from cqm.data.graph import Graph
+__all__ = ["contains_number"]
+
+import re
+
+
+def contains_number(value) -> list[int]:
+    """ Checks if value contains a number and
+    returns a list of numbers in the value.
+
+    Parameters
+    ----------
+    `value` (str):
+        The string to check.
+
+    Returns
+    -------
+    `num_list` (list[int]):
+        The list of numbers in the value.
+    """
+    return [(int(num)-1) for num in re.findall(r'\d+', value)]

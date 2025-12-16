@@ -12,6 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["Graph"]
+from __future__ import annotations
 
-from cqm.data.graph import Graph
+from cqm import QESP
+
+
+def test_esp() -> None:
+    coordinates = [
+        [1, 1],
+        [2, 3],
+        [3, 2],
+        [2, 4],
+        [1, 5],
+        [3, 6]
+    ]
+    edges = [
+        [0, 1],
+        [1, 2],
+        [1, 3],
+        [1, 5],
+        [2, 3],
+        [3, 4],
+        [4, 5]
+    ]
+
+    esp_model = QESP(
+        coordinates=coordinates,
+        edges=edges,
+        source=1,
+        destination=4,
+        time=30,
+        log=False
+    )
+
+    assert esp_model() == [[1, 3], [3, 4]]

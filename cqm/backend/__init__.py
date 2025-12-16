@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ['Backend', 'CQMBackend']
+__all__ = ["Backend", "CQMBackend"]
 
 from cqm.backend.backend import Backend, CQMBackend

@@ -13,44 +13,50 @@
 # limitations under the License.
 
 from __future__ import annotations
+
+__all__ = ["Backend", "CQMBackend"]
+
 from abc import ABC, abstractmethod
 
-__all__ = ['Backend', 'CQMBackend']
-
 import dimod
-from dwave.cloud import Client
-
 import time
 
 
 class Backend(ABC):
-    """ `Solver` is the base class for implementing solvers.
-
-    Parameters
-    ----------
-    `token` (str):
-        The token for the solver.
-    `time` (int):
-        The time limit for the problem.
-    `label` (str):
-        The label for the problem.
+    """ `cqm.Backend` is the base class for implementing solvers.
     """
-    def __init__(self,
-                 token: str,
-                 time: int,
-                 label: str) -> None:
+    def __init__(
+            self,
+            time: int,
+            label: str,
+            token: str | None = None
+        ) -> None:
+        """ Initializes a `Backend` instance.
+
+        Parameters
+        ----------
+        `token` (str, optional):
+            The token for the solver. If not provided, a default solver will be used.
+            If no default solver is available, an error will be raised.
+        `time` (int):
+            The time limit for the problem.
+        `label` (str):
+            The label for the problem.
+        """
         self.token = token
         self.time = time
         self.label = label
 
     @abstractmethod
-    def __call__(self,
-                 problem: dimod.QuadraticModel) -> dimod.SampleSet:
+    def __call__(
+            self,
+            problem: dimod.QuadraticModel | dimod.ConstrainedQuadraticModel
+        ) -> dimod.SampleSet:
         """ Solves the given problem.
 
         Parameters
         ----------
-        `problem` (dimod.QuadraticModel):
+        `problem` (dimod.QuadraticModel | dimod.ConstrainedQuadraticModel):
             The problem to solve.
 
         Returns
@@ -62,47 +68,79 @@ class Backend(ABC):
 
 
 class CQMBackend(Backend):
-    """ `CQM_Solver` is a class for implementing solvers for constrained quadratic models.
-
-    Parameters
-    ----------
-    `token` (str):
-        The token for the solver.
-    `time` (int):
-        The time limit for the problem.
-    `label` (str):
-        The label for the problem.
+    """ `cqm.CQMBackend` is a class for implementing solvers for constrained
+    quadratic models.
     """
-    def __init__(self,
-                 token: str,
-                 time: int,
-                 label: str) -> None:
-        super().__init__(token, time, label)
+    def __init__(
+            self,
+            time: int,
+            label: str,
+            token: str | None = None
+        ) -> None:
+        """ Initializes a `CQMBackend` instance.
 
-    def __call__(self,
-                 problem: dimod.ConstrainedQuadraticModel) -> dimod.SampleSet:
+        Parameters
+        ----------
+        `token` (str, optional):
+            The token for the solver. If not provided, `dimod.ExactCQMSolver` will be used.
+        `time` (int):
+            The time limit for the problem.
+        `label` (str):
+            The label for the problem.
+        """
+        super().__init__(time, label, token)
+
+    def __call__(
+            self,
+            problem: dimod.QuadraticModel | dimod.ConstrainedQuadraticModel
+        ) -> dimod.SampleSet:
         """ Solves the given problem.
 
         Parameters
         ----------
-        `problem` (dimod.ConstrainedQuadraticModel):
+        `problem` (dimod.QuadraticModel | dimod.ConstrainedQuadraticModel):
             The problem to solve.
 
         Returns
         -------
         `sampleset` (dimod.SampleSet):
             The result of the problem.
+
+        Raises
+        ------
+        TypeError:
+            - If the problem is not a Constrained Quadratic Model (CQM).
         """
-        # Connect using the default or environment connection information
-        with Client.from_config(token=self.token) as client:
-            # Define QPU
-            qpu = client.get_solver(name="hybrid_constrained_quadratic_model_version1")
+        from dwave.cloud import Client # type: ignore
 
-            # Sample the CQM
-            sampleset = qpu.sample_cqm(problem, label=self.label, time_limit=self.time)
+        if not isinstance(problem, dimod.ConstrainedQuadraticModel):
+            raise TypeError(
+                "The problem must be a Constrained Quadratic Model (CQM). "
+                f"Received {type(problem)} instead."
+            )
 
-            # Wait until it finishes
+        if self.token is None:
+            qpu = dimod.ExactCQMSolver()
+            sampleset = qpu.sample_cqm(
+                problem,
+                label=self.label,
+                time_limit=self.time
+            )
+
             while not sampleset.done():
                 time.sleep(5)
 
-            return sampleset.sampleset
+            return sampleset
+
+        with Client.from_config(token=self.token) as client:
+            qpu = client.get_solver(name="hybrid_constrained_quadratic_model_version1")
+            sampleset = qpu.sample_cqm(
+                problem,
+                label=self.label,
+                time_limit=self.time
+            )
+
+            while not sampleset.done():
+                time.sleep(5)
+
+            return sampleset.sampleset # type: ignore

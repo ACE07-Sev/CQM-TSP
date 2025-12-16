@@ -14,59 +14,59 @@
 
 from __future__ import annotations
 
-__all__ = ['Graph']
+__all__ = ["Graph"]
 
 from abc import ABC
-from collections.abc import Iterable
-import os
-os.chdir('..')
 
-import numpy as np
 import itertools
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt # type: ignore
+import numpy as np
 
 
 class Graph(ABC):
-    """ `CQM.Graph` class represents graph data, such as maps whcih
-        are used in the TSP.
+    """ `cqm.Graph` class represents graph data, such as maps whcih
+    are used in the TSP.
     """
-    def __init__(self,
-                 coordinates: Iterable[Iterable[float]],
-                 edges: Iterable[Iterable[int]] | None = None) -> None:
-        """ 
+    def __init__(
+            self,
+            coordinates: list[list[float]],
+            edges: list[list[int]] = []
+        ) -> None:
+        """
         Initializes a graph model.
 
         Parameters
         ----------
-        `coordinates` (Iterable[Iterable[float]]):
+        `coordinates` (list[list[float]]):
             The coordinates of the nodes of the graph.
-        `edges` (Iterable[Iterable[int]]):
+        `edges` (list[list[float]]):
             The edges of the graph.
         """
         self.coordinates = coordinates
         self.num_nodes = len(coordinates)
         self.edges = edges
 
-    def calculate_distance_matrix(self) -> Iterable[Iterable[float]]:
+    def calculate_distance_matrix(self) -> list[list[float]]:
         """ Defines the distance matrix for the given coordinates.
 
         Returns
         -------
-        `distance_matrix` (Iterable[Iterable[float]]):
+        `distance_matrix` (list[list[float]]):
             The distance matrix.
         """
-        # Initialize the distance matrix
         distance_matrix = []
 
-        def distance_between_points(point_A: Iterable[int],
-                                    point_B: Iterable[int]) -> float:
+        def distance_between_points(
+                point_A: list[float],
+                point_B: list[float]
+            ) -> float:
             """ Function for calculating the euclidean distance.
 
             Parameters
             ----------
-            `point_A` (Iterable[int]):
+            `point_A` (list[float]):
                 The first point.
-            `point_B` (Iterable[int]):
+            `point_B` (list[float]):
                 The second point.
 
             Returns
@@ -76,26 +76,25 @@ class Graph(ABC):
             """
             return np.sqrt((point_A[0] - point_B[0]) ** 2 + (point_A[1] - point_B[1]) ** 2)
 
-        # Calculate the distance matrix
         for a in self.coordinates:
             distance_matrix.append([distance_between_points(a, b) for b in self.coordinates])
 
-        # Return the distance matrix
         return distance_matrix
 
-    def generate_subtours(self) -> Iterable[Iterable[int]]:
+    def generate_subtours(self) -> list[list[int]]:
         """ Function to generate the subtours for the given graph.
 
         Returns
         -------
-        `subtours` : Iterable[Iterable[int]]
+        `subtours` : list[list[int]]
             The subtours.
         """
-        # Initialize subtours list
-        subtours = []
+        subtours: list[list[int]] = []
 
-        def find_subsets(s: int,
-                         n: int) -> Iterable[Iterable[int]]:
+        def find_subsets(
+                s: int,
+                n: int
+            ) -> list[list[int]]:
             """ Return the list of all subsets of length n in s.
 
             Parameters
@@ -107,25 +106,25 @@ class Graph(ABC):
 
             Returns
             -------
-            `subsets` (Iterable[Iterable[int]]):
+            `subsets` (list[list[int]]):
                 The list of all subsets of length n in s.
             """
-            return list(itertools.combinations(s, n))
+            return [list(combo) for combo in itertools.combinations(range(s), n)]
 
-        # Generate subtours
         for i in range(2, self.num_nodes):
-            subtours.extend(find_subsets(range(self.num_nodes), i))
+            subtours.extend(find_subsets(self.num_nodes, i))
 
-        # Return the subtours
         return subtours
 
-    def set_edges(self,
-                  edges: Iterable[Iterable[int]]) -> None:
+    def set_edges(
+            self,
+            edges: list[list[int]]
+        ) -> None:
         """ Sets the edges of the graph.
 
         Parameters
         ----------
-        `edges` (Iterable[Iterable[int]]):
+        `edges` (list[list[int]]):
             The edges of the graph.
         """
         self.edges = edges
@@ -133,10 +132,14 @@ class Graph(ABC):
     def plot(self) -> None:
         """ Plots the graph.
         """
-        # Plot the graph
         plt.figure(figsize=(10, 10))
-        plt.scatter([i[0] for i in self.coordinates], [i[1] for i in self.coordinates], color='red')
+        plt.scatter([i[0] for i in self.coordinates], [i[1] for i in self.coordinates], color="red")
+
         for i in self.edges:
-            plt.plot([self.coordinates[i[0]][0], self.coordinates[i[1]][0]],
-                     [self.coordinates[i[0]][1], self.coordinates[i[1]][1]], color='blue')
+            plt.plot(
+                [self.coordinates[i[0]][0], self.coordinates[i[1]][0]],
+                [self.coordinates[i[0]][1], self.coordinates[i[1]][1]],
+                color="blue"
+            )
+
         plt.show()

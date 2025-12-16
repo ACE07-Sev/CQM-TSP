@@ -14,21 +14,22 @@
 
 from __future__ import annotations
 
-__all__ = ['CQM']
+__all__ = ["CQM"]
 
 from abc import ABC, abstractmethod
-import os
-os.chdir('..')
+from typing import Any
 
 import dimod
 
 
 class CQM(ABC):
-    """ `CQM` is the base class for implementing constrained quadratic models.
+    """ `cqm.CQM` is the base class for implementing constrained quadratic models.
     """
-    def __init__(self,
-                 time: int,
-                 log: bool = True) -> None:
+    def __init__(
+            self,
+            time: int,
+            log: bool = True
+        ) -> None:
         """ Initializes a `CQM` instance.
 
         Parameters
@@ -37,11 +38,22 @@ class CQM(ABC):
             The time limit for the problem.
         `log` (bool):
             Whether to log the output or not.
+
+        Attributes
+        ----------
+        `time_limit` : int
+            The time limit for the problem.
+        `log` : bool
+            Whether to log the output or not.
+        `cqm` : dimod.ConstrainedQuadraticModel
+            The CQM.
+        `solution` : Any
+            The solution of the CQM.
         """
         self.time_limit = time
         self.log = log
-        # Construct the CQM
         self.cqm = self.define_CQM()
+        self.solution: Any = None
 
     @abstractmethod
     def define_CQM(self) -> dimod.ConstrainedQuadraticModel:
@@ -55,13 +67,20 @@ class CQM(ABC):
         pass
 
     @abstractmethod
-    def __call__(self,
-                 token: str) -> None:
+    def __call__(
+            self,
+            token: str | None = None
+        ) -> list[list[int]]:
         """ Solves the TSP CQM.
 
         Parameters
         ----------
-        `token` (str):
+        `token` (str, optional):
             The token for the solver.
+
+        Returns
+        -------
+        `sample_coordinate_sequence` (list[list[int]]):
+            The sequence of coordinates representing the solution path.
         """
         pass

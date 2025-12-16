@@ -1,5 +1,5 @@
 # CQM-TSP
-CQM solvers for TSP and ESP, using D-Wave's Quantum Annealing hardware.
+CQM solvers for TSP and ESP, using D-Wave's Hybrid Quantum Annealing hardware.
 
 ## Getting Started
 <p align="justify"> The CQM solvers take a list of coordinates and output the globally optimal path in $O(n)$ time (due to running on D-Wave HybridCQMSampler QPU), as compared to $O(n^2 * 2^n)$ complexity of its dynamic programming counterpart which is the Held-Karp modelling. The package provides an end-to-end interface, where given a list of coordinates and edges you can run the `QTSP` and `QESP` solvers. </p>
@@ -14,6 +14,8 @@ esp = QESP(coordinates=coordinates, edges=edges, source=1, destination=4, time=3
 
 # Run the solver
 esp(token=token)
+
+esp.plot()
 ```
 ```
 # Define the graph
@@ -24,6 +26,8 @@ tsp_model = QTSP_Improved(coordinates=coordinates, time=50, log=False)
 
 # Run the solver
 tsp_model(token=token)
+
+tsp_model.plot()
 ```
 
 ### Prerequisites
@@ -44,11 +48,11 @@ information visit D-wave's documentation on CLI: </p>
 https://docs.ocean.dwavesys.com/en/stable/docs_cli.html
 
 ## License
-Distributed under the GPL 3.0 license. See LICENSE for more details.
+Distributed under the Apache 2.0 license. See LICENSE for more details.
 
 ## Issues
 If you face any errors/issues kindly create an issue and your issue will be taken care of at the earliest opportunity. 
 
 Thank you for using the CQM-TSP and wish you a blessed day!
 
-<p>© 2024 Amirali Malekani Nezhad, all rights reserved.</p>
+<p>© 2025 Amirali Malekani Nezhad, all rights reserved.</p>
