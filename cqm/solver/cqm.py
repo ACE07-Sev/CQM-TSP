@@ -34,9 +34,9 @@ class CQM(ABC):
 
         Parameters
         ----------
-        `time` (int):
+        `time` : int
             The time limit for the problem.
-        `log` (bool):
+        `log` : bool, optional, default=True
             Whether to log the output or not.
 
         Attributes
@@ -75,12 +75,12 @@ class CQM(ABC):
 
         Parameters
         ----------
-        `token` (str, optional):
+        `token` : str, optional, default=None
             The token for the solver.
 
         Returns
         -------
-        `sample_coordinate_sequence` (list[list[int]]):
+        `sample_coordinate_sequence` : list[list[int]]
             The sequence of coordinates representing the solution path.
         """
         pass

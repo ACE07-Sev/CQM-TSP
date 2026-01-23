@@ -20,6 +20,7 @@ import dimod
 from dimod import ConstrainedQuadraticModel, Binary, quicksum
 from dimod.serialization.format import Formatter
 import numpy as np
+from numpy.typing import NDArray
 
 from cqm.backend import CQMBackend
 from cqm.data import Graph
@@ -37,23 +38,26 @@ class QESP(CQM):
             source: int,
             destination: int,
             time: int,
+            distance_matrix: NDArray[np.float64] | None = None,
             log: bool = True
         ) -> None:
         """ Initializes a `QESP` instance.
 
         Parameters
         ----------
-        `coordinates` (list[list[float]]):
+        `coordinates` : list[list[float]]
             The coordinates of the nodes of the graph.
-        `edges` (list[list[int]]):
+        `edges` : list[list[int]]
             The edges of the graph.
-        `source` (int):
+        `source` : int
             The source node.
-        `destination` (int):
+        `destination` : int
             The desination node.
-        `time` (int):
+        `distance_matrix` : NDArray[np.float64], optional, default=None
+            The distance matrix of the graph.
+        `time` : int
             The time limit for the problem.
-        `log` (bool):
+        `log` : bool, optional, default=True
             Whether to log the output or not.
 
         Attributes
@@ -64,6 +68,8 @@ class QESP(CQM):
             The source node.
         `destination` : int
             The desination node.
+        `distance_matrix` : NDArray[np.float64]
+            The distance matrix of the graph.
         `time_limit` : int
             The time limit for the problem.
         `log` : bool
@@ -77,6 +83,7 @@ class QESP(CQM):
         self.graph = Graph(coordinates=coordinates, edges=edges)
         self.source = source
         self.destination = destination
+        self.distance_matrix = distance_matrix
         self.time_limit = time
         self.log = log
         self.cqm = self.define_CQM()
@@ -87,12 +94,15 @@ class QESP(CQM):
 
         Returns
         -------
-        `cqm` (dimod.ConstrainedQuadraticModel):
+        `cqm` : dimod.ConstrainedQuadraticModel
             The CQM.
         """
         n = self.graph.num_nodes
 
-        distance_matrix = self.graph.calculate_distance_matrix()
+        if self.distance_matrix is not None:
+            distance_matrix = self.distance_matrix
+        else:
+            distance_matrix = np.array(self.graph.calculate_distance_matrix())
 
         cqm = ConstrainedQuadraticModel()
 
@@ -147,13 +157,13 @@ class QESP(CQM):
 
         Parameters
         ----------
-        `token` (str):
+        `token` : str, optional, default=None
             The token for the solver. Currently falls back on `ExactCQMSolver`
             if no token is provided.
 
         Returns
         -------
-        `sample_coordinate_sequence` (list[list[int]]):
+        `sample_coordinate_sequence` : list[list[int]]
             The sequence of coordinates representing the solution path.
         """
         cqm_sampler = CQMBackend(

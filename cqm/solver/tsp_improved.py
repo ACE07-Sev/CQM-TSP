@@ -20,6 +20,7 @@ import dimod
 from dimod import ConstrainedQuadraticModel, Binary, quicksum, Real
 from dimod.serialization.format import Formatter
 import numpy as np
+from numpy.typing import NDArray
 
 from cqm.backend import CQMBackend
 from cqm.data import Graph
@@ -46,6 +47,7 @@ class QTSP_Improved(CQM):
             self,
             coordinates: list[list[float]],
             time: int,
+            distance_matrix: NDArray[np.float64] | None = None,
             edges: list[list[int]] | None = None,
             log: bool = True
         ) -> None:
@@ -53,27 +55,31 @@ class QTSP_Improved(CQM):
 
         Parameters
         ----------
-        `coordinates` (list[list[float]]):
+        `coordinates` : list[list[float]]
             The coordinates of the nodes of the graph.
-        `time` (int):
+        `distance_matrix` : NDArray[np.float64], optional, default=None
+            The distance matrix of the graph.
+        `time` : int
             The time limit for the problem.
-        `edges` (list[list[int]], optional):
+        `edges` : list[list[int]], optional, default=None
             The edges of the graph. If no edges are provided, a
             complete graph is assumed.
-        `log` (bool):
+        `log` : bool, optional, default=True
             Whether to log the output or not.
 
         Attributes
         ----------
         `graph` : cqm.data.Graph
             The graph.
+        `distance_matrix` : NDArray[np.float64] | None
+            The distance matrix of the graph.
         `time_limit` : int
             The time limit for the problem.
         `log` : bool
             Whether to log the output or not.
-        `cqm` (dimod.ConstrainedQuadraticModel):
+        `cqm` : dimod.ConstrainedQuadraticModel
             The CQM.
-        `solution` (list[list[int]]):
+        `solution` : list[list[int]]
             The solution of the CQM.
         """
         if edges is None or edges == []:
@@ -82,6 +88,7 @@ class QTSP_Improved(CQM):
             ]
 
         self.graph = Graph(coordinates=coordinates, edges=edges)
+        self.distance_matrix = distance_matrix
         self.time_limit = time
         self.log = log
         self.cqm = self.define_CQM()
@@ -92,12 +99,15 @@ class QTSP_Improved(CQM):
 
         Returns
         -------
-        `cqm` (dimod.ConstrainedQuadraticModel):
+        `cqm` : dimod.ConstrainedQuadraticModel
             The CQM.
         """
         n = self.graph.num_nodes
 
-        distance_matrix = self.graph.calculate_distance_matrix()
+        if self.distance_matrix is not None:
+            distance_matrix = self.distance_matrix
+        else:
+            distance_matrix = np.array(self.graph.calculate_distance_matrix())
 
         cqm = ConstrainedQuadraticModel()
 
@@ -178,13 +188,13 @@ class QTSP_Improved(CQM):
 
         Parameters
         ----------
-        `token` (str):
+        `token` : str, optional, default=None
             The token for the solver. Currently falls back on `ExactCQMSolver`
             if no token is provided.
 
         Returns
         -------
-        `sample_coordinate_sequence` (list[list[int]]):
+        `sample_coordinate_sequence` : list[list[int]]
             The sequence of coordinates representing the solution path.
         """
         cqm_sampler = CQMBackend(

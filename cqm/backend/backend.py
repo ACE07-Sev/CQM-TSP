@@ -35,12 +35,12 @@ class Backend(ABC):
 
         Parameters
         ----------
-        `token` (str, optional):
+        `token` : str, optional, default=None
             The token for the solver. If not provided, a default solver will be used.
             If no default solver is available, an error will be raised.
-        `time` (int):
+        `time` : int
             The time limit for the problem.
-        `label` (str):
+        `label` : str
             The label for the problem.
         """
         self.token = token
@@ -56,12 +56,12 @@ class Backend(ABC):
 
         Parameters
         ----------
-        `problem` (dimod.QuadraticModel | dimod.ConstrainedQuadraticModel):
+        `problem` : dimod.QuadraticModel | dimod.ConstrainedQuadraticModel
             The problem to solve.
 
         Returns
         -------
-        `result` (dimod.SampleSet):
+        `result` : dimod.SampleSet
             The result of the problem.
         """
         pass
@@ -81,11 +81,11 @@ class CQMBackend(Backend):
 
         Parameters
         ----------
-        `token` (str, optional):
+        `token` : str, optional, default=None
             The token for the solver. If not provided, `dimod.ExactCQMSolver` will be used.
-        `time` (int):
+        `time` : int
             The time limit for the problem.
-        `label` (str):
+        `label` : str
             The label for the problem.
         """
         super().__init__(time, label, token)
@@ -98,12 +98,12 @@ class CQMBackend(Backend):
 
         Parameters
         ----------
-        `problem` (dimod.QuadraticModel | dimod.ConstrainedQuadraticModel):
+        `problem` : dimod.QuadraticModel | dimod.ConstrainedQuadraticModel
             The problem to solve.
 
         Returns
         -------
-        `sampleset` (dimod.SampleSet):
+        `sampleset` : dimod.SampleSet
             The result of the problem.
 
         Raises

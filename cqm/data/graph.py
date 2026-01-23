@@ -30,49 +30,56 @@ class Graph(ABC):
     def __init__(
             self,
             coordinates: list[list[float]],
-            edges: list[list[int]] = []
+            edges: list[list[int]] = [],
+            distance_matrix: list[list[float]] | None = None
         ) -> None:
         """
         Initializes a graph model.
 
         Parameters
         ----------
-        `coordinates` (list[list[float]]):
+        `coordinates` : list[list[float]]
             The coordinates of the nodes of the graph.
-        `edges` (list[list[float]]):
+        `edges` : list[list[int]], optional, default=[]
             The edges of the graph.
+        `distance_matrix` : list[list[float]], optional, default=None
+            The distance matrix of the graph.
         """
         self.coordinates = coordinates
         self.num_nodes = len(coordinates)
         self.edges = edges
+        self.distance_matrix = distance_matrix
 
     def calculate_distance_matrix(self) -> list[list[float]]:
         """ Defines the distance matrix for the given coordinates.
 
         Returns
         -------
-        `distance_matrix` (list[list[float]]):
+        `distance_matrix` : list[list[float]]
             The distance matrix.
         """
+        if self.distance_matrix is not None:
+            return self.distance_matrix
+
         distance_matrix = []
 
         def distance_between_points(
                 point_A: list[float],
                 point_B: list[float]
             ) -> float:
-            """ Function for calculating the euclidean distance.
+            """ Function for calculating the Euclidean distance.
 
             Parameters
             ----------
-            `point_A` (list[float]):
+            `point_A` : list[float]
                 The first point.
-            `point_B` (list[float]):
+            `point_B` : list[float]
                 The second point.
 
             Returns
             -------
-            `distance` (float):
-                The euclidean distance between the two points.
+            `distance` : float
+                The Euclidean distance between the two points.
             """
             return np.sqrt((point_A[0] - point_B[0]) ** 2 + (point_A[1] - point_B[1]) ** 2)
 
@@ -99,14 +106,14 @@ class Graph(ABC):
 
             Parameters
             ----------
-            `s` (int):
+            `s` : int
                 The number of nodes.
-            `n` (int):
+            `n` : int
                 The length of the subsets.
 
             Returns
             -------
-            `subsets` (list[list[int]]):
+            `subsets` : list[list[int]]
                 The list of all subsets of length n in s.
             """
             return [list(combo) for combo in itertools.combinations(range(s), n)]
@@ -124,7 +131,7 @@ class Graph(ABC):
 
         Parameters
         ----------
-        `edges` (list[list[int]]):
+        `edges` : list[list[int]]
             The edges of the graph.
         """
         self.edges = edges
